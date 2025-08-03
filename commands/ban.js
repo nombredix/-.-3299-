@@ -22,14 +22,13 @@ module.exports = {
             return message.reply("❌ Mentionne un utilisateur ou réponds à son message pour le bannir.");
         }
 
-        const member = message.guild.members.cache.get(userToBan.id);
-        if (!member || !member.bannable) {
-            return message.reply("❌ Je ne peux pas bannir cet utilisateur.");
-        }
-
-        const reason = args.slice(1).join(' ') || 'Aucune raison fournie.';
-
         try {
+            const member = await message.guild.members.fetch(userToBan.id); // Fetch membre
+            if (!member || !member.bannable) {
+                return message.reply("❌ Je ne peux pas bannir cet utilisateur.");
+            }
+
+            const reason = args.slice(1).join(' ') || 'Aucune raison fournie.';
             await member.ban({ reason });
             message.channel.send(`✅ ${userToBan.tag} a été banni. Raison : ${reason}`);
         } catch (err) {
