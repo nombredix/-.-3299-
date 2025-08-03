@@ -14,6 +14,7 @@ module.exports = {
                 const repliedMessage = await message.channel.messages.fetch(message.reference.messageId);
                 userToBan = repliedMessage.author;
             } catch (err) {
+                console.log("Erreur lors de la récupération du message répondu : ", err);
                 return message.reply("❌ Impossible de récupérer le message répondu.");
             }
         } else if (userMention) {
@@ -23,16 +24,22 @@ module.exports = {
         }
 
         try {
-            const member = await message.guild.members.fetch(userToBan.id); // Fetch membre
+            console.log("Essai de récupérer le membre à bannir : ", userToBan.id);
+            const member = await message.guild.members.fetch(userToBan.id);
+            console.log("Membre récupéré : ", member.user.tag);
+
             if (!member || !member.bannable) {
+                console.log("Impossible de bannir ce membre.");
                 return message.reply("❌ Je ne peux pas bannir cet utilisateur.");
             }
 
             const reason = args.slice(1).join(' ') || 'Aucune raison fournie.';
+            console.log(`Bannissement de ${userToBan.tag} pour la raison : ${reason}`);
             await member.ban({ reason });
+
             message.channel.send(`✅ ${userToBan.tag} a été banni. Raison : ${reason}`);
         } catch (err) {
-            console.error("Erreur lors du bannissement :", err);
+            console.log("Erreur lors du bannissement : ", err);
             message.reply("❌ Une erreur est survenue pendant le bannissement.");
         }
     }
