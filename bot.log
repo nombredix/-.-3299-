@@ -1,0 +1,88 @@
+2025-08-03 08:06:30,940 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:06:30,941 - __main__ - ERROR - Variables d'environnement manquantes: DISCORD_TOKEN, TEMP_ROLE_ID, MEN_ROLE_ID, WOMEN_ROLE_ID, LOG_CHANNEL_ID, GUILD_ID
+2025-08-03 08:06:43,968 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:06:43,970 - __main__ - ERROR - Variables d'environnement manquantes: DISCORD_TOKEN, TEMP_ROLE_ID, MEN_ROLE_ID, WOMEN_ROLE_ID, LOG_CHANNEL_ID, GUILD_ID
+2025-08-03 08:08:29,575 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:08:29,576 - __main__ - ERROR - Variables d'environnement manquantes: TEMP_ROLE_ID, MEN_ROLE_ID, WOMEN_ROLE_ID, LOG_CHANNEL_ID, GUILD_ID
+2025-08-03 08:08:29,576 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:08:29,579 - __main__ - ERROR - Variables d'environnement manquantes: TEMP_ROLE_ID, MEN_ROLE_ID, WOMEN_ROLE_ID, LOG_CHANNEL_ID, GUILD_ID
+2025-08-03 08:11:05,388 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:11:05,388 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:11:05,389 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:11:05,389 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:11:05,390 - discord.client - INFO - logging in using static token
+2025-08-03 08:11:05,390 - discord.client - INFO - logging in using static token
+2025-08-03 08:11:05,960 - __main__ - ERROR - Erreur lors du démarrage du bot: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+2025-08-03 08:11:06,089 - __main__ - ERROR - Erreur lors du démarrage du bot: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+2025-08-03 08:11:11,258 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:11:11,259 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:11:11,260 - discord.client - INFO - logging in using static token
+2025-08-03 08:11:11,970 - __main__ - ERROR - Erreur lors du démarrage du bot: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+2025-08-03 08:13:04,390 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:13:04,391 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:13:04,391 - discord.client - INFO - logging in using static token
+2025-08-03 08:13:05,093 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2ec5ce7da7a3a3492bb725c6598640e8).
+2025-08-03 08:13:07,099 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:13:33,470 - __main__ - ERROR - Erreur de commande: member is a required argument that is missing.
+2025-08-03 08:13:54,783 - __main__ - ERROR - Erreur de commande: member is a required argument that is missing.
+2025-08-03 08:14:01,365 - __main__ - INFO - ⃟⃟⃟ vérifié par Yis avec le rôle ⚜️ Zom
+2025-08-03 08:15:21,805 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:15:21,806 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:15:21,807 - discord.client - INFO - logging in using static token
+2025-08-03 08:15:22,394 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: df1f1e5e385cfb5964fe0a941a6be4b7).
+2025-08-03 08:15:24,414 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:16:48,219 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:16:48,220 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:16:48,221 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:16:48,222 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:16:48,222 - discord.client - INFO - logging in using static token
+2025-08-03 08:16:48,222 - discord.client - INFO - logging in using static token
+2025-08-03 08:16:48,995 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e49390babc1e8f30b2f2283321337268).
+2025-08-03 08:16:49,012 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a3fb2665c9e9300863fb95c9fa541a92).
+2025-08-03 08:16:51,001 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:16:51,017 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:18:47,178 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:18:47,180 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:18:47,180 - discord.client - INFO - logging in using static token
+2025-08-03 08:18:47,871 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f089cbbaaa51012238eb64c02d303bc7).
+2025-08-03 08:18:49,879 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:19:37,843 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:19:37,846 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:19:37,846 - discord.client - INFO - logging in using static token
+2025-08-03 08:19:38,600 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: dd07353c042fbae427139a75c175c70c).
+2025-08-03 08:19:40,606 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:19:42,025 - __main__ - INFO - Rôles sauvegardés pour ⃟⃟⃟: 1 rôles
+2025-08-03 08:19:44,430 - __main__ - INFO - ⃟⃟⃟ prison(e) par Yis
+2025-08-03 08:20:02,569 - __main__ - INFO - Rôles restaurés pour ⃟⃟⃟: 1 rôles
+2025-08-03 08:20:03,228 - __main__ - INFO - ⃟⃟⃟ libéré(e) par Yis
+2025-08-03 08:20:24,481 - __main__ - INFO - Rôles sauvegardés pour ⃟⃟⃟: 2 rôles
+2025-08-03 08:20:25,659 - __main__ - INFO - ⃟⃟⃟ prison(e) par Yis
+2025-08-03 08:20:35,231 - __main__ - INFO - Rôles restaurés pour ⃟⃟⃟: 2 rôles
+2025-08-03 08:20:37,849 - __main__ - INFO - ⃟⃟⃟ libéré(e) par Yis
+2025-08-03 08:20:50,401 - __main__ - INFO - Commande +omar exécutée par Yis
+2025-08-03 08:38:15,975 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:15,975 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:15,977 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:15,977 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:15,977 - discord.client - INFO - logging in using static token
+2025-08-03 08:38:15,977 - discord.client - INFO - logging in using static token
+2025-08-03 08:38:16,132 - __main__ - ERROR - Erreur lors du démarrage du bot: Improper token has been passed.
+2025-08-03 08:38:16,150 - __main__ - ERROR - Erreur lors du démarrage du bot: Improper token has been passed.
+2025-08-03 08:38:20,354 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:20,356 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:20,356 - discord.client - INFO - logging in using static token
+2025-08-03 08:38:20,360 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:20,362 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:20,362 - discord.client - INFO - logging in using static token
+2025-08-03 08:38:20,506 - __main__ - ERROR - Erreur lors du démarrage du bot: Improper token has been passed.
+2025-08-03 08:38:20,552 - __main__ - ERROR - Erreur lors du démarrage du bot: Improper token has been passed.
+2025-08-03 08:38:58,244 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:58,245 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:58,246 - discord.client - INFO - logging in using static token
+2025-08-03 08:38:58,951 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d337c6abf00665b453dde2a01968b5a3).
+2025-08-03 08:38:59,357 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-03 08:38:59,358 - __main__ - INFO - Démarrage du bot de vérification Discord...
+2025-08-03 08:38:59,359 - discord.client - INFO - logging in using static token
+2025-08-03 08:39:00,047 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 3c94df2f04e9a075f1b94c368a286b9b).
+2025-08-03 08:39:00,956 - __main__ - INFO - Protect#4387 est connecté et prêt!
+2025-08-03 08:39:02,051 - __main__ - INFO - Protect#4387 est connecté et prêt!
