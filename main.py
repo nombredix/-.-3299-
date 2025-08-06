@@ -80,53 +80,6 @@ class VerificationBot:
         except Exception as e:
             logger.error(f"Erreur lors de l'attribution du rôle temporaire: {e}")
 
-    async def verify_member(self, ctx, member, gender_role_id):
-        """Vérifie un membre et lui attribue le rôle approprié"""
-        try:
-            guild = ctx.guild
-            temp_role = guild.get_role(TEMP_ROLE_ID)
-            gender_role = guild.get_role(gender_role_id)
-            
-            if not gender_role:
-                await ctx.send("❌ Erreur: Rôle de genre non trouvé dans la configuration.")
-                return False
-                
-            # Vérifier si le membre a le rôle temporaire
-            if temp_role and temp_role not in member.roles:
-                await ctx.send(f"⚠️ {member.mention} ne possède pas le rôle temporaire. Il a peut-être déjà été vérifié.")
-                return False
-                
-            # Supprimer le rôle temporaire s'il existe
-            if temp_role and temp_role in member.roles:
-                await member.remove_roles(temp_role, reason=f"Vérification par {ctx.author}")
-                
-            # Ajouter le rôle de genre
-            await member.add_roles(gender_role, reason=f"Vérification par {ctx.author}")
-            
-            # Message de confirmation
-            await ctx.send(f"✅ {member.mention} a été vérifié(e) avec succès et a reçu le rôle {gender_role.name}!")
-            
-            # Log de l'action
-            await self.log_action(
-                f"Vérification manuelle - Attribution du rôle {gender_role.name}",
-                ctx.author,
-                member,
-                gender_role
-            )
-            
-            logger.info(f"{member.display_name} vérifié par {ctx.author.display_name} avec le rôle {gender_role.name}")
-            return True
-            
-        except discord.Forbidden:
-            await ctx.send("❌ Je n'ai pas les permissions nécessaires pour gérer les rôles de ce membre.")
-            logger.error(f"Permissions insuffisantes pour vérifier {member.display_name}")
-            return False
-            
-        except Exception as e:
-            await ctx.send(f"❌ Une erreur s'est produite lors de la vérification: {str(e)}")
-            logger.error(f"Erreur lors de la vérification de {member.display_name}: {e}")
-            return False
-
     async def save_user_roles(self, member):
         """Sauvegarde les rôles d'un membre (sauf rôle temporaire)"""
         roles_to_save = []
