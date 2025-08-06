@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-import asyncio
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
@@ -257,7 +256,11 @@ async def mute_member(ctx, member: discord.Member = None, *, reason="Aucune rais
     if member is None:
         await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+mute @membre [raison]`")
         return
-    await verification_bot.apply_sanction(ctx, member, MUTE_ROLE_ID, "Mute")
+    await verification_bot.save_user_roles(member)
+    mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
+    await member.add_roles(mute_role, reason=reason)
+    await ctx.send(f"✅ {member.mention} a été mis en mute.")
+    await verification_bot.log_action("Mute", ctx.author, member, mute_role)
 
 @bot.command(name='hebs')
 async def prison_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
@@ -273,7 +276,11 @@ async def prison_member(ctx, member: discord.Member = None, *, reason="Aucune ra
     if member is None:
         await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+hebs @membre [raison]`")
         return
-    await verification_bot.apply_sanction(ctx, member, PRISON_ROLE_ID, "Prison")
+    await verification_bot.save_user_roles(member)
+    prison_role = ctx.guild.get_role(PRISON_ROLE_ID)
+    await member.add_roles(prison_role, reason=reason)
+    await ctx.send(f"✅ {member.mention} a été envoyé en prison.")
+    await verification_bot.log_action("Envoi en prison", ctx.author, member, prison_role)
 
 @bot.command(name='unhebs')
 async def unprison_member(ctx, member: discord.Member = None):
@@ -289,7 +296,9 @@ async def unprison_member(ctx, member: discord.Member = None):
     if member is None:
         await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+unhebs @membre`")
         return
-    await verification_bot.remove_from_prison(ctx, member)
+    await verification_bot.restore_user_roles(member)
+    await ctx.send(f"✅ {member.mention} a été libéré(e) de la prison.")
+    await verification_bot.log_action("Libération de prison", ctx.author, member)
 
 @bot.command(name='omar')
 async def omar_command(ctx):
