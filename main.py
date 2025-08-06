@@ -94,7 +94,11 @@ class VerificationBot:
                 await member.remove_roles(temp_role, reason=f"Vérification par {ctx.author}")
                 
             await member.add_roles(gender_role, reason=f"Vérification par {ctx.author}")
-            await ctx.send(f"✅ {member.mention} a été vérifié(e) avec succès et a reçu le rôle {gender_role.name}!")
+            await ctx.send(embed=discord.Embed(
+                title="✅ Vérification réussie",
+                description=f"{member.mention} a été vérifié(e) avec succès et a reçu le rôle {gender_role.name} !",
+                color=0x00ff00
+            ))
             await self.log_action(f"Vérification manuelle - Attribution du rôle {gender_role.name}", ctx.author, member, gender_role)
             logger.info(f"{member.display_name} vérifié par {ctx.author.display_name} avec le rôle {gender_role.name}")
             return True
@@ -158,7 +162,11 @@ class VerificationBot:
                 await member.remove_roles(*roles_to_remove, reason=f"{action_name} par {ctx.author}")
             
             await member.add_roles(sanction_role, reason=f"{action_name} par {ctx.author}")
-            await ctx.send(f"🔒 {member.mention} a été {action_name.lower()}(e) avec succès!")
+            await ctx.send(embed=discord.Embed(
+                title="🔒 Sanction Appliquée",
+                description=f"{member.mention} a été {action_name.lower()}(e) avec succès !",
+                color=0xff9900
+            ))
             await self.log_action(f"{action_name} appliqué(e)", ctx.author, member, sanction_role)
             logger.info(f"{member.display_name} {action_name.lower()}(e) par {ctx.author.display_name}")
             return True
@@ -228,7 +236,11 @@ async def mute(ctx, member: discord.Member = None, *, reason="Aucune raison spé
     mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
     if mute_role:
         await member.add_roles(mute_role, reason=reason)
-        await ctx.send(f"🔇 {member.mention} a été mute pour la raison: {reason}")
+        await ctx.send(embed=discord.Embed(
+            title="🔇 Membre Muté",
+            description=f"{member.mention} a été mute pour la raison: {reason}",
+            color=0x00ff00
+        ))
     else:
         await ctx.send("❌ Le rôle de mute est introuvable.")
 
@@ -243,7 +255,11 @@ async def unmute(ctx, member: discord.Member = None):
     mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
     if mute_role in member.roles:
         await member.remove_roles(mute_role, reason="Unmute")
-        await ctx.send(f"🔊 {member.mention} a été unmute.")
+        await ctx.send(embed=discord.Embed(
+            title="🔊 Membre Unmuté",
+            description=f"{member.mention} a été unmute.",
+            color=0x00ff00
+        ))
     else:
         await ctx.send(f"⚠️ {member.mention} n'est pas mute.")
 
@@ -280,7 +296,11 @@ async def prison_member(ctx, member: discord.Member = None):
             roles_to_remove = [role for role in member.roles if role.id != ctx.guild.default_role.id and role.id != PRISON_ROLE_ID]
             if roles_to_remove:
                 await member.remove_roles(*roles_to_remove, reason="Envoyé en prison")
-            await ctx.send(f"🔒 {member.mention} a été envoyé en prison.")
+            await ctx.send(embed=discord.Embed(
+                title="🔒 Membre en Prison",
+                description=f"{member.mention} a été envoyé en prison.",
+                color=0xff9900
+            ))
         else:
             await ctx.send("❌ Le rôle prison est introuvable.")
     except Exception as e:
@@ -304,9 +324,17 @@ async def unprison_member(ctx, member: discord.Member = None):
         
         restored = await verification_bot.restore_user_roles(member)
         if restored:
-            await ctx.send(f"🔓 {member.mention} a été libéré(e) et ses rôles ont été restaurés!")
+            await ctx.send(embed=discord.Embed(
+                title="🔓 Membre Libéré",
+                description=f"{member.mention} a été libéré(e) et ses rôles ont été restaurés!",
+                color=0x00ff00
+            ))
         else:
-            await ctx.send(f"🔓 {member.mention} a été libéré(e) mais aucun rôle sauvegardé trouvé.")
+            await ctx.send(embed=discord.Embed(
+                title="🔓 Membre Libéré",
+                description=f"{member.mention} a été libéré(e) mais aucun rôle sauvegardé trouvé.",
+                color=0xff9900
+            ))
     except Exception as e:
         await ctx.send(f"❌ Erreur lors de la libération : {str(e)}")
 
