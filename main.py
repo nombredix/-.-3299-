@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Configuration du bot
 intents = discord.Intents.default()
-intents.members = True  # Permet d'accéder aux informations des membres
-intents.message_content = True  # Permet d'accéder au contenu des messages
+intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='+', intents=intents)
 
@@ -40,7 +40,6 @@ GUILD_ID = int(os.getenv('GUILD_ID', '0'))
 class VerificationBot:
     def __init__(self, bot):
         self.bot = bot
-        # Dictionnaire pour sauvegarder les rôles avant sanctions {user_id: [role_ids]}
         self.saved_roles = {}
 
     async def log_action(self, action, admin, member, role_assigned=None):
@@ -58,8 +57,8 @@ class VerificationBot:
                 embed.add_field(name="Membre", value=f"{member.mention} ({member.id})", inline=True)
                 if role_assigned:
                     embed.add_field(name="Rôle Attribué", value=role_assigned.name, inline=True)
-
                 await log_channel.send(embed=embed)
+                
         except Exception as e:
             logger.error(f"Erreur lors du logging: {e}")
 
@@ -68,14 +67,17 @@ class VerificationBot:
         try:
             guild = member.guild
             temp_role = guild.get_role(TEMP_ROLE_ID)
-
+            
             if temp_role:
                 await member.add_roles(temp_role, reason="Attribution automatique du rôle temporaire")
                 logger.info(f"Rôle temporaire attribué à {member.display_name}")
+                
                 # Log de l'attribution automatique
                 await self.log_action("Attribution automatique du rôle temporaire", guild.me, member)
+                
             else:
                 logger.error(f"Rôle temporaire (ID: {TEMP_ROLE_ID}) non trouvé")
+                
         except Exception as e:
             logger.error(f"Erreur lors de l'attribution du rôle temporaire: {e}")
 
@@ -85,32 +87,26 @@ class VerificationBot:
             guild = ctx.guild
             temp_role = guild.get_role(TEMP_ROLE_ID)
             gender_role = guild.get_role(gender_role_id)
-
+            
             if not gender_role:
                 await ctx.send("❌ Erreur: Rôle de genre non trouvé dans la configuration.")
                 return False
-
+                
             # Vérifier si le membre a le rôle temporaire
             if temp_role and temp_role not in member.roles:
                 await ctx.send(f"⚠️ {member.mention} ne possède pas le rôle temporaire. Il a peut-être déjà été vérifié.")
                 return False
-
+                
             # Supprimer le rôle temporaire s'il existe
             if temp_role and temp_role in member.roles:
                 await member.remove_roles(temp_role, reason=f"Vérification par {ctx.author}")
-
+                
             # Ajouter le rôle de genre
             await member.add_roles(gender_role, reason=f"Vérification par {ctx.author}")
-
-            # Message de confirmation avec un Embed
-            embed = discord.Embed(
-                title="✅ Vérification réussie",
-                description=f"{member.mention} a été vérifié(e) avec succès et a reçu le rôle {gender_role.name}!",
-                color=0x00ff00,
-                timestamp=datetime.utcnow()
-            )
-            await ctx.send(embed=embed)
-
+            
+            # Message de confirmation
+            await ctx.send(f"✅ {member.mention} a été vérifié(e) avec succès et a reçu le rôle {gender_role.name}!")
+            
             # Log de l'action
             await self.log_action(
                 f"Vérification manuelle - Attribution du rôle {gender_role.name}",
@@ -118,14 +114,15 @@ class VerificationBot:
                 member,
                 gender_role
             )
+            
             logger.info(f"{member.display_name} vérifié par {ctx.author.display_name} avec le rôle {gender_role.name}")
             return True
-
+            
         except discord.Forbidden:
             await ctx.send("❌ Je n'ai pas les permissions nécessaires pour gérer les rôles de ce membre.")
             logger.error(f"Permissions insuffisantes pour vérifier {member.display_name}")
             return False
-
+            
         except Exception as e:
             await ctx.send(f"❌ Une erreur s'est produite lors de la vérification: {str(e)}")
             logger.error(f"Erreur lors de la vérification de {member.display_name}: {e}")
@@ -135,10 +132,9 @@ class VerificationBot:
         """Sauvegarde les rôles d'un membre (sauf rôle temporaire)"""
         roles_to_save = []
         for role in member.roles:
-            # Ignorer @everyone et le rôle temporaire
             if role.id != member.guild.default_role.id and role.id != TEMP_ROLE_ID:
                 roles_to_save.append(role.id)
-
+        
         self.saved_roles[member.id] = roles_to_save
         logger.info(f"Rôles sauvegardés pour {member.display_name}: {len(roles_to_save)} rôles")
 
@@ -146,15 +142,15 @@ class VerificationBot:
         """Restaure les rôles sauvegardés d'un membre"""
         if member.id not in self.saved_roles:
             return False
-
+        
         guild = member.guild
         roles_to_restore = []
-
+        
         for role_id in self.saved_roles[member.id]:
             role = guild.get_role(role_id)
             if role:
                 roles_to_restore.append(role)
-
+        
         if roles_to_restore:
             try:
                 await member.add_roles(*roles_to_restore, reason="Restauration des rôles après sanction")
@@ -163,74 +159,12 @@ class VerificationBot:
                 logger.error(f"Erreur lors de la restauration des rôles pour {member.display_name}: {e}")
                 return False
 
-        # Supprimer la sauvegarde après restauration
-        del self.saved_roles[member.id]
-        return True
-
-    async def apply_sanction(self, ctx, member, sanction_role_id, action_name):
-        """Applique une sanction (mute ou prison) à un membre"""
-        try:
-            guild = ctx.guild
-            sanction_role = guild.get_role(sanction_role_id)
-
-            if not sanction_role:
-                await ctx.send(f"❌ Erreur: Rôle de {action_name} non trouvé dans la configuration.")
-                return False
-
-            # Vérifier si le membre a déjà ce rôle
-            if sanction_role in member.roles:
-                await ctx.send(f"⚠️ {member.mention} possède déjà le rôle {sanction_role.name}.")
-                return False
-
-            # Sauvegarder les rôles actuels
-            await self.save_user_roles(member)
-
-            # Supprimer tous les rôles sauf @everyone
-            roles_to_remove = [role for role in member.roles if role.id != guild.default_role.id]
-            if roles_to_remove:
-                await member.remove_roles(*roles_to_remove, reason=f"{action_name} par {ctx.author}")
-
-            # Ajouter le rôle de sanction
-            await member.add_roles(sanction_role, reason=f"{action_name} par {ctx.author}")
-
-            # Message de confirmation avec un Embed
-            embed = discord.Embed(
-                title=f"🔒 {action_name} appliqué(e)",
-                description=f"{member.mention} a été {action_name.lower()}(e) avec succès!",
-                color=0xff9900,
-                timestamp=datetime.utcnow()
-            )
-            await ctx.send(embed=embed)
-
-            # Log de l'action
-            await self.log_action(
-                f"{action_name} appliqué(e)",
-                ctx.author,
-                member,
-                sanction_role
-            )
-            logger.info(f"{member.display_name} {action_name.lower()}(e) par {ctx.author.display_name}")
-            return True
-
-        except discord.Forbidden:
-            await ctx.send("❌ Je n'ai pas les permissions nécessaires pour gérer les rôles de ce membre.")
-            logger.error(f"Permissions insuffisantes pour {action_name.lower()} {member.display_name}")
-            return False
-
-        except Exception as e:
-            await ctx.send(f"❌ Une erreur s'est produite lors de l'application de la sanction: {str(e)}")
-            logger.error(f"Erreur lors de l'application de la sanction à {member.display_name}: {e}")
-            return False
-
-# Initialisation de la classe de vérification
 verification_bot = VerificationBot(bot)
 
 @bot.event
 async def on_ready():
     """Événement déclenché quand le bot est prêt"""
     logger.info(f'{bot.user} est connecté et prêt!')
-    
-    # Vérifier la configuration
     guild = bot.get_guild(GUILD_ID)
     if not guild:
         logger.error(f"Serveur Discord (ID: {GUILD_ID}) non trouvé")
@@ -249,22 +183,130 @@ async def on_ready():
         
     if not bot.get_channel(LOG_CHANNEL_ID):
         logger.warning(f"Canal de logs (ID: {LOG_CHANNEL_ID}) non trouvé")
+    
+    # Message de redémarrage
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    if log_channel:
+        embed = discord.Embed(
+            title="🔄 Redémarrage du Bot",
+            description="Le bot a été redémarré avec succès !",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        await log_channel.send(embed=embed)
 
 @bot.command(name='help1')
 async def help1(ctx):
-    """Affiche l'aide avec toutes les commandes disponibles"""
+    """Commande d'aide"""
     embed = discord.Embed(
-        title="📜 Commandes du Bot",
-        color=0x0099ff,
-        timestamp=datetime.utcnow()
+        title="Aide du Bot",
+        description="Voici les commandes disponibles :",
+        color=0x0099ff
     )
-    
-    embed.add_field(name="Vérification", value="`+men @membre` - Vérifie un membre comme masculin\n`+wom @membre` - Vérifie un membre comme féminin", inline=False)
-    embed.add_field(name="Sanctions", value="`+mute @membre` - Mute un membre\n`+hebs @membre` - Envoie un membre en prison\n`+unhebs @membre` - Libère un membre de la prison", inline=False)
-    embed.add_field(name="Informations", value="`+status` - Affiche l'état du bot\n`+pending` - Liste les membres en attente de vérification", inline=False)
-    
+    embed.add_field(name="+men", value="Vérifie un membre masculin.", inline=False)
+    embed.add_field(name="+wom", value="Vérifie un membre féminin.", inline=False)
+    embed.add_field(name="+mute", value="Mute un membre.", inline=False)
+    embed.add_field(name="+hebs", value="Envoie un membre en prison.", inline=False)
+    embed.add_field(name="+unhebs", value="Libère un membre de prison.", inline=False)
+    embed.add_field(name="+omar", value="Envoie la vidéo Omar.", inline=False)
     await ctx.send(embed=embed)
 
-# Autres commandes comme men, wom, mute, unmute, etc. sont à inclure comme avant
+@bot.command(name='men')
+async def verify_men(ctx, member: discord.Member = None):
+    """Commande pour vérifier un membre masculin"""
+    if member is None and ctx.message.reference:
+        try:
+            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            member = replied_message.author
+            if not isinstance(member, discord.Member):
+                member = ctx.guild.get_member(member.id)
+        except:
+            pass
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+men @membre` ou répondre à un message avec `+men`")
+        return
+    await verification_bot.verify_member(ctx, member, MEN_ROLE_ID)
+
+@bot.command(name='wom')
+async def verify_women(ctx, member: discord.Member = None):
+    """Commande pour vérifier un membre féminin"""
+    if member is None and ctx.message.reference:
+        try:
+            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            member = replied_message.author
+            if not isinstance(member, discord.Member):
+                member = ctx.guild.get_member(member.id)
+        except:
+            pass
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+wom @membre` ou répondre à un message avec `+wom`")
+        return
+    await verification_bot.verify_member(ctx, member, WOMEN_ROLE_ID)
+
+@bot.command(name='mute')
+async def mute_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
+    """Commande pour muter un membre"""
+    if member is None and ctx.message.reference:
+        try:
+            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            member = replied_message.author
+            if not isinstance(member, discord.Member):
+                member = ctx.guild.get_member(member.id)
+        except:
+            pass
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+mute @membre [raison]`")
+        return
+    await verification_bot.apply_sanction(ctx, member, MUTE_ROLE_ID, "Mute")
+
+@bot.command(name='hebs')
+async def prison_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
+    """Commande pour envoyer un membre en prison"""
+    if member is None and ctx.message.reference:
+        try:
+            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            member = replied_message.author
+            if not isinstance(member, discord.Member):
+                member = ctx.guild.get_member(member.id)
+        except:
+            pass
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+hebs @membre [raison]`")
+        return
+    await verification_bot.apply_sanction(ctx, member, PRISON_ROLE_ID, "Prison")
+
+@bot.command(name='unhebs')
+async def unprison_member(ctx, member: discord.Member = None):
+    """Commande pour libérer un membre de prison"""
+    if member is None and ctx.message.reference:
+        try:
+            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            member = replied_message.author
+            if not isinstance(member, discord.Member):
+                member = ctx.guild.get_member(member.id)
+        except:
+            pass
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message. Utilisation: `+unhebs @membre`")
+        return
+    await verification_bot.remove_from_prison(ctx, member)
+
+@bot.command(name='omar')
+async def omar_command(ctx):
+    """Commande Omar - Envoie la vidéo spéciale"""
+    try:
+        video_path = "omar_video.mov"
+        if not os.path.exists(video_path):
+            await ctx.send("❌ Fichier vidéo Omar non trouvé.")
+            logger.error("Fichier omar_video.mov non trouvé")
+            return
+        
+        with open(video_path, 'rb') as video_file:
+            await ctx.send(file=discord.File(video_file, filename="omar_video.mov"))
+        logger.info(f"Commande +omar exécutée par {ctx.author.display_name}")
+        
+    except Exception as e:
+        await ctx.send("❌ Erreur lors de l'envoi de la vidéo Omar.")
+        logger.error(f"Erreur lors de l'exécution de la commande +omar: {e}")
 
 bot.run(DISCORD_TOKEN)
