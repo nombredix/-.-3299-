@@ -178,11 +178,13 @@ async def on_ready():
     """Événement déclenché quand le bot est prêt"""
     logger.info(f'{bot.user} est connecté et prêt!')
     
+    # Afficher un message de confirmation dans un canal spécifique
     guild = bot.get_guild(GUILD_ID)
-    if not guild:
-        logger.error(f"Serveur Discord (ID: {GUILD_ID}) non trouvé")
-        return
-        
+    if guild:
+        channel = guild.text_channels[0]  # Vous pouvez choisir un canal spécifique
+        await channel.send("💬 Le bot a démarré avec succès et est maintenant prêt à être utilisé!")
+
+    # Vérification de la configuration
     missing_roles = []
     if not guild.get_role(TEMP_ROLE_ID):
         missing_roles.append(f"Rôle temporaire (ID: {TEMP_ROLE_ID})")
