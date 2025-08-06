@@ -112,7 +112,7 @@ class VerificationBot:
     async def save_user_roles(self, member):
         roles_to_save = []
         for role in member.roles:
-            if role.id != member.guild.default_role.id and role.id != TEMP_ROLE_ID:
+            if role.id != member.guild.default_role.id and role.id != TEMP_ROLE_ID and role.id != PRISON_ROLE_ID:
                 roles_to_save.append(role.id)
         self.saved_roles[member.id] = roles_to_save
         logger.info(f"Rôles sauvegardés pour {member.display_name}: {len(roles_to_save)} rôles")
@@ -153,7 +153,7 @@ class VerificationBot:
                 return False
             
             await self.save_user_roles(member)
-            roles_to_remove = [role for role in member.roles if role.id != guild.default_role.id]
+            roles_to_remove = [role for role in member.roles if role.id != guild.default_role.id and role.id != PRISON_ROLE_ID]
             if roles_to_remove:
                 await member.remove_roles(*roles_to_remove, reason=f"{action_name} par {ctx.author}")
             
@@ -201,6 +201,52 @@ async def help1(ctx):
     embed.add_field(name="Vidéo", value="+omar", inline=False)
     await ctx.send(embed=embed)
 
+@bot.command(name='men')
+async def verify_men(ctx, member: discord.Member = None):
+    """Vérifie un membre comme masculin"""
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre.")
+        return
+    await verification_bot.verify_member(ctx, member, MEN_ROLE_ID)
+
+@bot.command(name='wom')
+async def verify_women(ctx, member: discord.Member = None):
+    """Vérifie un membre comme féminin"""
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre.")
+        return
+    await verification_bot.verify_member(ctx, member, WOMEN_ROLE_ID)
+
+@bot.command(name='mute')
+@commands.has_permissions(administrator=True)
+async def mute(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
+    """Mute un membre"""
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre.")
+        return
+
+    mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
+    if mute_role:
+        await member.add_roles(mute_role, reason=reason)
+        await ctx.send(f"🔇 {member.mention} a été mute pour la raison: {reason}")
+    else:
+        await ctx.send("❌ Le rôle de mute est introuvable.")
+
+@bot.command(name='unmute')
+@commands.has_permissions(administrator=True)
+async def unmute(ctx, member: discord.Member = None):
+    """Unmute un membre"""
+    if member is None:
+        await ctx.send("❌ Veuillez mentionner un membre.")
+        return
+
+    mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
+    if mute_role in member.roles:
+        await member.remove_roles(mute_role, reason="Unmute")
+        await ctx.send(f"🔊 {member.mention} a été unmute.")
+    else:
+        await ctx.send(f"⚠️ {member.mention} n'est pas mute.")
+
 @bot.command(name='omar')
 async def omar(ctx):
     """Commande Omar - Envoie la vidéo spéciale"""
@@ -228,11 +274,10 @@ async def prison_member(ctx, member: discord.Member = None):
         return
 
     try:
-        # Applique le rôle prison et retire les autres
         prison_role = ctx.guild.get_role(PRISON_ROLE_ID)
         if prison_role:
             await member.add_roles(prison_role, reason="Envoyé en prison")
-            roles_to_remove = [role for role in member.roles if role.id != ctx.guild.default_role.id]
+            roles_to_remove = [role for role in member.roles if role.id != ctx.guild.default_role.id and role.id != PRISON_ROLE_ID]
             if roles_to_remove:
                 await member.remove_roles(*roles_to_remove, reason="Envoyé en prison")
             await ctx.send(f"🔒 {member.mention} a été envoyé en prison.")
@@ -264,41 +309,5 @@ async def unprison_member(ctx, member: discord.Member = None):
             await ctx.send(f"🔓 {member.mention} a été libéré(e) mais aucun rôle sauvegardé trouvé.")
     except Exception as e:
         await ctx.send(f"❌ Erreur lors de la libération : {str(e)}")
-
-@bot.command(name='mute')
-@commands.has_permissions(administrator=True)
-async def mute_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
-    """Mute un membre"""
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre.")
-        return
-
-    try:
-        mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
-        if mute_role:
-            await member.add_roles(mute_role, reason=reason)
-            await ctx.send(f"🔇 {member.mention} a été muté pour : {reason}")
-        else:
-            await ctx.send("❌ Le rôle mute est introuvable.")
-    except Exception as e:
-        await ctx.send(f"❌ Erreur lors de l'application du mute : {str(e)}")
-
-@bot.command(name='unmute')
-@commands.has_permissions(administrator=True)
-async def unmute_member(ctx, member: discord.Member = None):
-    """Unmute un membre"""
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre.")
-        return
-
-    try:
-        mute_role = ctx.guild.get_role(MUTE_ROLE_ID)
-        if mute_role in member.roles:
-            await member.remove_roles(mute_role, reason="Unmute")
-            await ctx.send(f"🔊 {member.mention} a été unmuté.")
-        else:
-            await ctx.send(f"⚠️ {member.mention} n'est pas muté.")
-    except Exception as e:
-        await ctx.send(f"❌ Erreur lors de l'annulation du mute : {str(e)}")
 
 bot.run(DISCORD_TOKEN)
