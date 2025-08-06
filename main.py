@@ -36,6 +36,7 @@ MUTE_ROLE_ID = int(os.getenv('MUTE_ROLE_ID', '0'))
 PRISON_ROLE_ID = int(os.getenv('PRISON_ROLE_ID', '0'))
 LOG_CHANNEL_ID = int(os.getenv('LOG_CHANNEL_ID', '0'))
 GUILD_ID = int(os.getenv('GUILD_ID', '0'))
+RESTART_CHANNEL_ID = int(os.getenv('RESTART_CHANNEL_ID', '0'))  # ID du canal pour le message de redémarrage
 
 class VerificationBot:
     def __init__(self, bot):
@@ -243,6 +244,13 @@ async def on_ready():
         
     if not bot.get_channel(LOG_CHANNEL_ID):
         logger.warning(f"Canal de logs (ID: {LOG_CHANNEL_ID}) non trouvé")
+        
+    # Message de redémarrage dans un canal spécifique
+    restart_channel = bot.get_channel(RESTART_CHANNEL_ID)
+    if restart_channel:
+        await restart_channel.send("🚀 Le bot a redémarré avec succès!")
+    else:
+        logger.warning("Canal de redémarrage non configuré ou introuvable.")
 
 @bot.event
 async def on_member_join(member):
