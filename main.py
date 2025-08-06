@@ -37,11 +37,14 @@ PRISON_ROLE_ID = int(os.getenv('PRISON_ROLE_ID', '0'))
 LOG_CHANNEL_ID = int(os.getenv('LOG_CHANNEL_ID', '0'))
 GUILD_ID = int(os.getenv('GUILD_ID', '0'))
 
+# ID du salon où le message de démarrage sera envoyé
+STARTUP_CHANNEL_ID = 1401557235871649873
+
 class VerificationBot:
     def __init__(self, bot):
         self.bot = bot
         self.saved_roles = {}
-        
+
     async def log_action(self, action, admin, member, role_assigned=None):
         try:
             log_channel = self.bot.get_channel(LOG_CHANNEL_ID)
@@ -178,14 +181,25 @@ async def on_ready():
     """Événement déclenché quand le bot est prêt"""
     logger.info(f'{bot.user} est connecté et prêt!')
     
-    # Afficher un message de confirmation dans un canal spécifique
-    guild = bot.get_guild(GUILD_ID)
-    if guild:
-        channel = guild.text_channels[0]  # Vous pouvez choisir un canal spécifique
-        await channel.send("💬 Le bot a démarré avec succès et est maintenant prêt à être utilisé!")
+    # Envoi d'un message de démarrage dans le salon spécifié
+    channel = bot.get_channel(STARTUP_CHANNEL_ID)
+    if channel:
+        embed = discord.Embed(
+            title="🎉 Bot démarré avec succès !",
+            description=f"Le bot {bot.user.name} est maintenant en ligne et prêt à être utilisé.",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text="Bot de vérification actif")
+        await channel.send(embed=embed)
 
     # Vérification de la configuration
     missing_roles = []
+    if not bot.get_guild(GUILD_ID):
+        logger.error(f"Serveur Discord (ID: {GUILD_ID}) non trouvé")
+        return
+
+    guild = bot.get_guild(GUILD_ID)
     if not guild.get_role(TEMP_ROLE_ID):
         missing_roles.append(f"Rôle temporaire (ID: {TEMP_ROLE_ID})")
     if not guild.get_role(MEN_ROLE_ID):
@@ -199,139 +213,26 @@ async def on_ready():
     if not bot.get_channel(LOG_CHANNEL_ID):
         logger.warning(f"Canal de logs (ID: {LOG_CHANNEL_ID}) non trouvé")
 
-@bot.event
-async def on_member_join(member):
-    """Événement déclenché quand un nouveau membre rejoint le serveur"""
-    logger.info(f"Nouveau membre: {member.display_name} ({member.id})")
-    
-    if member.guild.id != GUILD_ID:
-        return
-        
-    await asyncio.sleep(1)
-    await verification_bot.assign_temp_role(member)
+# Commandes avec un aspect visuel plus agréable
 
-def is_admin():
-    async def predicate(ctx):
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.send("❌ Cette commande est réservée aux administrateurs.")
-            logger.warning(f"{ctx.author.display_name} a tenté d'utiliser une commande admin sans permissions")
-            return False
-        return True
-    return commands.check(predicate)
-
-@bot.command(name='men')
-@is_admin()
-async def verify_men(ctx, member: discord.Member = None):
-    if member is None and ctx.message.reference:
-        try:
-            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-            member = replied_message.author
-        except:
-            pass
-    
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message.")
-        return
-        
-    await verification_bot.verify_member(ctx, member, MEN_ROLE_ID)
-
-@bot.command(name='wom')
-@is_admin()
-async def verify_women(ctx, member: discord.Member = None):
-    if member is None and ctx.message.reference:
-        try:
-            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-            member = replied_message.author
-        except:
-            pass
-    
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message.")
-        return
-        
-    await verification_bot.verify_member(ctx, member, WOMEN_ROLE_ID)
-
-@bot.command(name='mute')
-@is_admin()
-async def mute_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
-    if member is None and ctx.message.reference:
-        try:
-            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-            member = replied_message.author
-        except:
-            pass
-    
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message.")
-        return
-    
-    await verification_bot.apply_sanction(ctx, member, MUTE_ROLE_ID, "Mute")
-
-@bot.command(name='hebs')
-@is_admin()
-async def prison_member(ctx, member: discord.Member = None, *, reason="Aucune raison spécifiée"):
-    if member is None and ctx.message.reference:
-        try:
-            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-            member = replied_message.author
-        except:
-            pass
-    
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message.")
-        return
-    
-    await verification_bot.apply_sanction(ctx, member, PRISON_ROLE_ID, "Prison")
-
-@bot.command(name='unhebs')
-@is_admin()
-async def unprison_member(ctx, member: discord.Member = None):
-    if member is None and ctx.message.reference:
-        try:
-            replied_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-            member = replied_message.author
-        except:
-            pass
-    
-    if member is None:
-        await ctx.send("❌ Veuillez mentionner un membre ou répondre à son message.")
-        return
-    
-    try:
-        guild = ctx.guild
-        prison_role = guild.get_role(PRISON_ROLE_ID)
-        mute_role = guild.get_role(MUTE_ROLE_ID)
-        
-        if not (prison_role in member.roles or mute_role in member.roles):
-            await ctx.send(f"⚠️ {member.mention} n'est pas en prison ou muté.")
-            return
-        
-        roles_to_remove = []
-        if prison_role in member.roles:
-            roles_to_remove.append(prison_role)
-        if mute_role in member.roles:
-            roles_to_remove.append(mute_role)
-        
-        if roles_to_remove:
-            await member.remove_roles(*roles_to_remove, reason=f"Libération par {ctx.author}")
-        
-        restored = await verification_bot.restore_user_roles(member)
-        
-        if restored:
-            await ctx.send(f"🔓 {member.mention} a été libéré(e) et ses rôles ont été restaurés!")
-        else:
-            await ctx.send(f"🔓 {member.mention} a été libéré(e) mais aucun rôle sauvegardé trouvé.")
-        
-        await verification_bot.log_action("Libération de prison/mute", ctx.author, member)
-        logger.info(f"{member.display_name} libéré(e) par {ctx.author.display_name}")
-        
-    except discord.Forbidden:
-        await ctx.send("❌ Je n'ai pas les permissions nécessaires pour gérer les rôles de ce membre.")
-        logger.error(f"Permissions insuffisantes pour libérer {member.display_name}")
-        
-    except Exception as e:
-        await ctx.send(f"❌ Une erreur s'est produite lors de la libération: {str(e)}")
-        logger.error(f"Erreur lors de la libération de {member.display_name}: {e}")
+@bot.command(name='help')
+async def help_command(ctx):
+    """Commande d'aide - plus visuelle"""
+    embed = discord.Embed(
+        title="📚 Commandes disponibles",
+        description="Voici les commandes que vous pouvez utiliser avec le bot.",
+        color=0x3498db,
+        timestamp=datetime.utcnow()
+    )
+    embed.add_field(name="+men", value="Attribuer le rôle 'homme' à un membre", inline=False)
+    embed.add_field(name="+wom", value="Attribuer le rôle 'femme' à un membre", inline=False)
+    embed.add_field(name="+mute", value="Muter un membre", inline=False)
+    embed.add_field(name="+hebs", value="Envoyer un membre en prison", inline=False)
+    embed.add_field(name="+unhebs", value="Libérer un membre de prison", inline=False)
+    embed.add_field(name="+status", value="Voir le statut du bot", inline=False)
+    embed.add_field(name="+pending", value="Voir les membres en attente de vérification", inline=False)
+    embed.set_footer(text="Bot de gestion de rôles et sanctions")
+    await ctx.send(embed=embed)
 
 # Exécution du bot
 if __name__ == "__main__":
